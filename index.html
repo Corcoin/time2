@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <title>Tokenize Payment Information</title>
     <script src="https://js.stripe.com/v3/"></script>
 </head>
@@ -12,6 +11,7 @@
         <input type="text" id="card-number" placeholder="Card Number">
         <input type="text" id="card-expiry" placeholder="MM/YY">
         <input type="text" id="card-cvc" placeholder="CVC">
+        <input type="text" id="balance" placeholder="Balance">
         <button type="submit">Submit</button>
     </form>
 
@@ -27,12 +27,31 @@
         form.addEventListener('submit', function(event) {
             event.preventDefault();
 
+            var balance = document.getElementById('balance').value;
+
             stripe.createToken(cardElement).then(function(result) {
                 if (result.error) {
                     console.error(result.error.message);
                 } else {
-                    console.log(result.token.id);
-                    // Use result.token.id to submit the payment token to your server
+                    console.log('Token:', result.token.id);
+                    console.log('Balance:', balance);
+                    // Submit the payment token and balance to your server
+                    fetch('/your-server-endpoint', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            token: result.token.id,
+                            balance: balance
+                        })
+                    }).then(function(response) {
+                        return response.json();
+                    }).then(function(data) {
+                        console.log('Server Response:', data);
+                    }).catch(function(error) {
+                        console.error('Error:', error);
+                    });
                 }
             });
         });
