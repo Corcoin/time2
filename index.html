@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Tokenize Payment Information</title>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <form id="payment-form">
+        <input type="text" id="card-number" placeholder="Card Number">
+        <input type="text" id="card-expiry" placeholder="MM/YY">
+        <input type="text" id="card-cvc" placeholder="CVC">
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        var stripe = Stripe('pk_live_51MaQi7HvDlURhOxB5VDM2l1VcvyUQpcBUBehhY2ifWgiGVKcSMTIgjDCkHTwumXXLo6XFAo7yDYI5qS4mzE7zLFv001xRXIkfz');
+
+        var elements = stripe.elements();
+        var cardElement = elements.create('card');
+
+        cardElement.mount('#card-element');
+
+        var form = document.getElementById('payment-form');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            stripe.createToken(cardElement).then(function(result) {
+                if (result.error) {
+                    console.error(result.error.message);
+                } else {
+                    console.log(result.token.id);
+                    // Use result.token.id to submit the payment token to your server
+                }
+            });
+        });
+    </script>
+</body>
+</html>
